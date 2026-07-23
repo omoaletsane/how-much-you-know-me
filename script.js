@@ -710,7 +710,7 @@ function resetAnswerArea() {
   }
 
   if (els.nextQuestionBtn) {
-    els.nextQuestionBtn.hidden = true;
+    els.nextQuestionBtn.classList.add("hidden");
   }
 }
 
@@ -857,7 +857,7 @@ function submitAnswer(event) {
   }
 
   if (els.nextQuestionBtn) {
-    els.nextQuestionBtn.hidden = false;
+    els.nextQuestionBtn.classList.remove("hidden");
 
     const isLastQuestion =
       state.currentIndex === state.selectedQuestions.length - 1;
