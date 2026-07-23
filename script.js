@@ -1,111 +1,112 @@
+﻿// Updated quiz version - July 2026
 const QUESTION_COUNT = 20;
 
 const questionBank = [
   {
-    category: "Identity", icon: "👤",
+    category: "Identity", icon: "ðŸ‘¤",
     question: "What is my full name?",
     instruction: "Enter my first name and surname.",
     answers: ["Oduetse Moaletsane"]
   },
   {
-    category: "Identity", icon: "😎",
+    category: "Identity", icon: "ðŸ˜Ž",
     question: "What is my nickname?",
     instruction: "Enter the nickname only.",
     answers: ["Dux"]
   },
   {
-    category: "Family", icon: "👨",
+    category: "Family", icon: "ðŸ‘¨",
     question: "What is my father's full name?",
     instruction: "Enter his first name and surname.",
     answers: ["Diiteo Moaletsane"]
   },
   {
-    category: "Family", icon: "🕊️",
+    category: "Family", icon: "ðŸ•Šï¸",
     question: "Is my father alive or late?",
-    instruction: "Answer with “alive” or “late”.",
+    instruction: "Answer with â€œaliveâ€ or â€œlateâ€.",
     answers: ["late"]
   },
   {
-    category: "Family", icon: "👩",
+    category: "Family", icon: "ðŸ‘©",
     question: "What is my mother's full name?",
     instruction: "Enter her first name and surname.",
     answers: ["Alican Moaletsane"]
   },
   {
-    category: "Family", icon: "❤️",
+    category: "Family", icon: "â¤ï¸",
     question: "Is my mother alive or late?",
-    instruction: "Answer with “alive” or “late”.",
+    instruction: "Answer with â€œaliveâ€ or â€œlateâ€.",
     answers: ["alive"]
   },
   {
-    category: "Family", icon: "👨‍👩‍👧‍👦",
+    category: "Family", icon: "ðŸ‘¨â€ðŸ‘©â€ðŸ‘§â€ðŸ‘¦",
     question: "How many siblings do I have?",
     instruction: "Enter the number as a figure.",
     answers: ["6"], numeric: true
   },
   {
-    category: "Family", icon: "👦",
+    category: "Family", icon: "ðŸ‘¦",
     question: "How many of my siblings are male?",
     instruction: "Enter the number as a figure.",
     answers: ["4"], numeric: true
   },
   {
-    category: "Family", icon: "👧",
+    category: "Family", icon: "ðŸ‘§",
     question: "How many of my siblings are female?",
     instruction: "Enter the number as a figure.",
     answers: ["2"], numeric: true
   },
   {
-    category: "Marriage", icon: "💍",
+    category: "Marriage", icon: "ðŸ’",
     question: "What is my wife's full married name?",
     instruction: "Enter her first name and current surname.",
     answers: ["Ipuseng Moaletsane"]
   },
   {
-    category: "Marriage", icon: "📜",
+    category: "Marriage", icon: "ðŸ“œ",
     question: "What is my wife's maiden surname?",
     instruction: "Enter the surname only.",
     answers: ["Zambo"]
   },
   {
-    category: "Family", icon: "👨‍👩‍👧",
+    category: "Family", icon: "ðŸ‘¨â€ðŸ‘©â€ðŸ‘§",
     question: "How many daughters do we have?",
     instruction: "Enter the number as a figure.",
     answers: ["1"], numeric: true
   },
   {
-    category: "Family", icon: "👧🏽",
+    category: "Family", icon: "ðŸ‘§ðŸ½",
     question: "What is our daughter's full name?",
     instruction: "Enter all three names.",
     answers: ["Laciana Loago Moaletsane"]
   },
   {
-    category: "Personal", icon: "🎂",
+    category: "Personal", icon: "ðŸŽ‚",
     question: "What is my full date of birth?",
     instruction: "Use the format: DD Month YYYY. Example: 05 January 1990.",
     answers: ["24 August 1982", "24th August 1982"],
     date: true
   },
   {
-    category: "Faith", icon: "✝️",
+    category: "Faith", icon: "âœï¸",
     question: "What is my religion?",
     instruction: "Enter one word.",
     answers: ["Christian", "Christianity"]
   },
   {
-    category: "Career", icon: "🛡️",
+    category: "Career", icon: "ðŸ›¡ï¸",
     question: "What is my job title?",
     instruction: "Enter the full job title.",
     answers: ["Data Protection Officer", "Specialist Data Protection"]
   },
   {
-    category: "Career", icon: "🏦",
+    category: "Career", icon: "ðŸ¦",
     question: "At which organisation do I work?",
     instruction: "Enter the full name or its abbreviation.",
     answers: ["Botswana Savings Bank", "BSB"]
   },
   {
-    category: "Education", icon: "🎓",
+    category: "Education", icon: "ðŸŽ“",
     question: "What bachelor's degree do I hold?",
     instruction: "Enter the degree and field of study.",
     answers: [
@@ -116,21 +117,21 @@ const questionBank = [
     ]
   },
   {
-    category: "Education", icon: "📈",
+    category: "Education", icon: "ðŸ“ˆ",
     question: "Which two subjects did I major in for my bachelor's degree?",
-    instruction: "Enter both subjects separated by “and”.",
+    instruction: "Enter both subjects separated by â€œandâ€.",
     answers: ["Statistics and Demography", "Demography and Statistics"]
   },
   {
-    category: "Education", icon: "💻",
+    category: "Education", icon: "ðŸ’»",
     question: "Which master's degree am I enrolled for?",
     instruction: "Enter the degree and field.",
     answers: ["Master of Science in Data Science", "MSc Data Science", "MSc in Data Science"]
   },
   {
-    category: "Education", icon: "🧠",
+    category: "Education", icon: "ðŸ§ ",
     question: "What are my two master's specialisations?",
-    instruction: "Enter both areas separated by “and”.",
+    instruction: "Enter both areas separated by â€œandâ€.",
     answers: [
       "Big Data Analytics and Software Engineering",
       "Software Engineering and Big Data Analytics",
@@ -139,19 +140,19 @@ const questionBank = [
     ]
   },
   {
-    category: "Location", icon: "🏠",
+    category: "Location", icon: "ðŸ ",
     question: "Where do I live?",
     instruction: "Enter the village name only.",
     answers: ["Oodi"]
   },
   {
-    category: "Location", icon: "🏙️",
+    category: "Location", icon: "ðŸ™ï¸",
     question: "In which city do I work?",
     instruction: "Enter the city name only.",
     answers: ["Gaborone"]
   },
   {
-    category: "Faith", icon: "⛪",
+    category: "Faith", icon: "â›ª",
     question: "Which church do I attend?",
     instruction: "Enter the church and village.",
     answers: [
@@ -162,31 +163,31 @@ const questionBank = [
     ]
   },
   {
-    category: "Faith", icon: "🙏",
+    category: "Faith", icon: "ðŸ™",
     question: "Who is my pastor?",
     instruction: "Enter his title, first name and surname.",
     answers: ["Rev Stephen Motlhagodi", "Reverend Stephen Motlhagodi", "Stephen Motlhagodi"]
   },
   {
-    category: "Lifestyle", icon: "🐄",
+    category: "Lifestyle", icon: "ðŸ„",
     question: "What do I do besides my professional work?",
     instruction: "Enter the occupation or activity.",
     answers: ["Farmer", "Farming"]
   },
   {
-    category: "Lifestyle", icon: "🌾",
+    category: "Lifestyle", icon: "ðŸŒ¾",
     question: "Where is my cattle post?",
     instruction: "Enter the place name only.",
     answers: ["Seruruma"]
   },
   {
-    category: "Vehicles", icon: "🛻",
+    category: "Vehicles", icon: "ðŸ›»",
     question: "Which Nissan vehicle do I drive?",
     instruction: "Enter the model and specification.",
     answers: ["Nissan Navara 4x4 Pro", "Navara 4x4 Pro", "Nissan Navara"]
   },
   {
-    category: "Vehicles", icon: "🚘",
+    category: "Vehicles", icon: "ðŸš˜",
     question: "Which BMW model do I own?",
     instruction: "Enter the model, generation and version.",
     answers: [
@@ -197,7 +198,7 @@ const questionBank = [
     ]
   },
   {
-    category: "Vehicles", icon: "🚚",
+    category: "Vehicles", icon: "ðŸšš",
     question: "Which GWM vehicle do I own?",
     instruction: "Enter the model and body type.",
     answers: [
@@ -208,13 +209,13 @@ const questionBank = [
     ]
   },
   {
-    category: "Vehicles", icon: "💚",
+    category: "Vehicles", icon: "ðŸ’š",
     question: "Which of my vehicles do I like most?",
     instruction: "Enter the vehicle name.",
     answers: ["GWM Cargo", "GWM single cab Cargo", "GWM Cargo single cab"]
   },
   {
-    category: "Vehicles", icon: "🐄",
+    category: "Vehicles", icon: "ðŸ„",
     question: "Why do I like the GWM Cargo most?",
     instruction: "State the main reason in a short phrase.",
     keywords: ["cattle post"],
@@ -288,7 +289,7 @@ function normalize(value) {
   return value
     .trim()
     .toLowerCase()
-    .replace(/[.,'’"]/g, "")
+    .replace(/[.,'â€™"]/g, "")
     .replace(/\s+/g, " ");
 }
 
@@ -390,13 +391,13 @@ function submitAnswer(event) {
   if (correct) {
     state.correct += 1;
     els.answerWrap.classList.add("correct");
-    els.answerStatusIcon.textContent = "✓";
+    els.answerStatusIcon.textContent = "âœ“";
     els.feedbackText.textContent = "Correct! You know this one.";
     els.feedbackText.className = "feedback-text correct";
     playTone(760, 0.12);
   } else {
     els.answerWrap.classList.add("wrong");
-    els.answerStatusIcon.textContent = "✕";
+    els.answerStatusIcon.textContent = "âœ•";
     const accepted = question.answerHint || question.answers[0];
     els.feedbackText.textContent = `Not quite. Correct answer: ${accepted}`;
     els.feedbackText.className = "feedback-text wrong";
@@ -406,7 +407,7 @@ function submitAnswer(event) {
   els.correctCount.textContent = state.correct;
   els.remainingCount.textContent = QUESTION_COUNT - (state.currentIndex + 1);
   els.nextQuestionBtn.textContent =
-    state.currentIndex === QUESTION_COUNT - 1 ? "See My Result →" : "Next Question →";
+    state.currentIndex === QUESTION_COUNT - 1 ? "See My Result â†’" : "Next Question â†’";
 }
 
 function nextQuestion() {
@@ -475,7 +476,7 @@ function restartGame() {
 
 async function shareResult() {
   const score = Math.round((state.correct / QUESTION_COUNT) * 100);
-  const shareText = `${state.playerName} knows Oduetse ${score}%! Can you do better in “How Much You Know Me?”`;
+  const shareText = `${state.playerName} knows Oduetse ${score}%! Can you do better in â€œHow Much You Know Me?â€`;
 
   try {
     if (navigator.share) {
@@ -538,7 +539,7 @@ els.shareBtn.addEventListener("click", shareResult);
 
 els.soundToggle.addEventListener("click", () => {
   state.soundOn = !state.soundOn;
-  els.soundToggle.firstElementChild.textContent = state.soundOn ? "🔊" : "🔇";
+  els.soundToggle.firstElementChild.textContent = state.soundOn ? "ðŸ”Š" : "ðŸ”‡";
   els.soundToggle.setAttribute("aria-label", state.soundOn ? "Mute sound" : "Enable sound");
 });
 
@@ -559,3 +560,4 @@ if (privacyToggle && privacyContent) {
     privacyToggle.setAttribute("aria-expanded", String(isOpen));
   });
 }
+
