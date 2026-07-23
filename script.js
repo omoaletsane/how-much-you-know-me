@@ -2,136 +2,255 @@
 const QUESTION_COUNT = 20;
 
 const questionBank = [
+
   {
-    category: "Identity", icon: "ðŸ‘¤",
+    category: "Identity",
+    icon: "👤",
     question: "What is my full name?",
     instruction: "Enter my first name and surname.",
-    answers: ["Oduetse Moaletsane"]
+    answers: [
+      "Oduetse Moaletsane"
+    ]
   },
+
   {
-    category: "Identity", icon: "ðŸ˜Ž",
+    category: "Identity",
+    icon: "😎",
     question: "What is my nickname?",
     instruction: "Enter the nickname only.",
-    answers: ["Dux"]
+    answers: [
+      "Dux",
+	  "ducks"
+    ]
   },
+
   {
-    category: "Family", icon: "ðŸ‘¨",
+    category: "Family",
+    icon: "👨",
     question: "What is my father's full name?",
     instruction: "Enter his first name and surname.",
-    answers: ["Diiteo Moaletsane"]
+    answers: [
+      "Diiteo Moaletsane"
+    ]
   },
+
   {
-    category: "Family", icon: "ðŸ•Šï¸",
+    category: "Family",
+    icon: "🕊️",
     question: "Is my father alive or late?",
-    instruction: "Answer with â€œaliveâ€ or â€œlateâ€.",
-    answers: ["late"]
+    instruction: "Answer with alive or late.",
+    answers: [
+      "late"
+    ]
   },
+
   {
-    category: "Family", icon: "ðŸ‘©",
+    category: "Family",
+    icon: "👩",
     question: "What is my mother's full name?",
     instruction: "Enter her first name and surname.",
-    answers: ["Alican Moaletsane"]
+    answers: [
+      "Alican Moaletsane"
+    ]
   },
+
   {
-    category: "Family", icon: "â¤ï¸",
+    category: "Family",
+    icon: "❤️",
     question: "Is my mother alive or late?",
-    instruction: "Answer with â€œaliveâ€ or â€œlateâ€.",
-    answers: ["alive"]
+    instruction: "Answer with alive or late.",
+    answers: [
+      "alive"
+    ]
   },
+
   {
-    category: "Family", icon: "ðŸ‘¨â€ðŸ‘©â€ðŸ‘§â€ðŸ‘¦",
+    category: "Family",
+    icon: "👨‍👩‍👧‍👦",
     question: "How many siblings do I have?",
-    instruction: "Enter the number as a figure.",
-    answers: ["6"], numeric: true
+    instruction: "Enter the number.",
+    answers: [
+      "6"
+    ],
+    numeric: true
   },
+
   {
-    category: "Family", icon: "ðŸ‘¦",
+    category: "Family",
+    icon: "👦",
     question: "How many of my siblings are male?",
-    instruction: "Enter the number as a figure.",
-    answers: ["4"], numeric: true
+    instruction: "Enter the number.",
+    answers: [
+      "2"
+    ],
+    numeric: true
   },
+
   {
-    category: "Family", icon: "ðŸ‘§",
+    category: "Family",
+    icon: "👧",
     question: "How many of my siblings are female?",
-    instruction: "Enter the number as a figure.",
-    answers: ["2"], numeric: true
+    instruction: "Enter the number.",
+    answers: [
+      "4"
+    ],
+    numeric: true
   },
+
   {
-    category: "Marriage", icon: "ðŸ’",
+    category: "Marriage",
+    icon: "💍",
     question: "What is my wife's full married name?",
-    instruction: "Enter her first name and current surname.",
-    answers: ["Ipuseng Moaletsane"]
+    instruction: "Enter her first name and surname.",
+    answers: [
+      "Ipuseng Moaletsane"
+    ]
   },
+
   {
-    category: "Marriage", icon: "ðŸ“œ",
+    category: "Marriage",
+    icon: "📜",
     question: "What is my wife's maiden surname?",
-    instruction: "Enter the surname only.",
-    answers: ["Zambo"]
+    instruction: "Enter surname only.",
+    answers: [
+      "Zambo"
+    ]
   },
+
   {
-    category: "Family", icon: "ðŸ‘¨â€ðŸ‘©â€ðŸ‘§",
+    category: "Family",
+    icon: "👨‍👩‍👧",
     question: "How many daughters do we have?",
-    instruction: "Enter the number as a figure.",
-    answers: ["1"], numeric: true
+    instruction: "Enter the number.",
+    answers: [
+      "1"
+    ],
+    numeric: true
   },
+
   {
-    category: "Family", icon: "ðŸ‘§ðŸ½",
+    category: "Family",
+    icon: "👧🏽",
     question: "What is our daughter's full name?",
     instruction: "Enter all three names.",
-    answers: ["Laciana Loago Moaletsane"]
+    answers: [
+      "Laciana Loago Moaletsane",
+	  "Laciana Moaletsane",
+	  "Loago Moaletsane"
+    ]
   },
+
   {
-    category: "Personal", icon: "ðŸŽ‚",
+    category: "Personal",
+    icon: "🎂",
     question: "What is my full date of birth?",
-    instruction: "Use the format: DD Month YYYY. Example: 05 January 1990.",
-    answers: ["24 August 1982", "24th August 1982"],
+    instruction: "Use DD Month YYYY.",
+    answers: [
+      "24 August 1982",
+      "24th August 1982",
+	  "24-08-1982",
+	  "24081982"
+	  "240882",
+	  "24/08/1982",
+	  "24/08/82",
+	  "24August1982"
+	 
+    ],
     date: true
   },
+
   {
-    category: "Faith", icon: "âœï¸",
+    category: "Faith",
+    icon: "✝️",
     question: "What is my religion?",
     instruction: "Enter one word.",
-    answers: ["Christian", "Christianity"]
+    answers: [
+      "Christian",
+      "Christianity"
+    ]
   },
+
   {
-    category: "Career", icon: "ðŸ›¡ï¸",
+    category: "Career",
+    icon: "🛡️",
     question: "What is my job title?",
-    instruction: "Enter the full job title.",
-    answers: ["Data Protection Officer", "Specialist Data Protection"]
+    instruction: "Enter the full title.",
+    answers: [
+      "Data Protection Officer",
+      "Specialist Data Protection",
+      "Data Protection Specialist",
+      "DPO",
+	  "Statistician",
+	  "Demographer",
+	  "Data Scientist",
+	  "Data Protection",
+	  "Specialist"
+    ]
   },
+
   {
-    category: "Career", icon: "ðŸ¦",
+    category: "Career",
+    icon: "🏦",
     question: "At which organisation do I work?",
-    instruction: "Enter the full name or its abbreviation.",
-    answers: ["Botswana Savings Bank", "BSB"]
+    instruction: "Enter the full name or abbreviation.",
+    answers: [
+      "Botswana Savings Bank",
+      "BSB",
+	  "At the Farm",
+	  "Odiplus",
+	  "Odiplus Investment"
+    ]
   },
+
   {
-    category: "Education", icon: "ðŸŽ“",
+    category: "Education",
+    icon: "🎓",
     question: "What bachelor's degree do I hold?",
-    instruction: "Enter the degree and field of study.",
+    instruction: "Enter the degree.",
     answers: [
       "Bachelor of Arts in Social Science",
       "Bachelor of Arts in Social Sciences",
       "BA Social Science",
-      "BA Social Sciences"
+      "BA Social Sciences",
+	  "BASS",
+	  "Social Science",
+	  "Social Sciences"
+    ]
+  },
+
+  {
+    category: "Education",
+    icon: "📈",
+    question: "Which two subjects did I major in?",
+    instruction: "Separate them with AND.",
+    answers: [
+      "Statistics and Demography",
+      "Demography and Statistics",
+	  "Stats and Demo",
+	  "Demo and Stats",
+	  "Statistics and Population Studies",
+	  "Population Studies and Statistics"
+    ]
+  },
+
+  {
+    category: "Education",
+    icon: "💻",
+    question: "Which master's degree am I enrolled for?",
+    instruction: "Enter the degree.",
+    answers: [
+      "Master of Science in Data Science",
+      "MSc Data Science",
+      "MSc in Data Science",
+	  "Data Sciences",
+	  "Data Science"
     ]
   },
   {
-    category: "Education", icon: "ðŸ“ˆ",
-    question: "Which two subjects did I major in for my bachelor's degree?",
-    instruction: "Enter both subjects separated by â€œandâ€.",
-    answers: ["Statistics and Demography", "Demography and Statistics"]
-  },
-  {
-    category: "Education", icon: "ðŸ’»",
-    question: "Which master's degree am I enrolled for?",
-    instruction: "Enter the degree and field.",
-    answers: ["Master of Science in Data Science", "MSc Data Science", "MSc in Data Science"]
-  },
-  {
-    category: "Education", icon: "ðŸ§ ",
+    category: "Education",
+    icon: "🧠",
     question: "What are my two master's specialisations?",
-    instruction: "Enter both areas separated by â€œandâ€.",
+    instruction: "Enter both areas separated by AND.",
     answers: [
       "Big Data Analytics and Software Engineering",
       "Software Engineering and Big Data Analytics",
@@ -139,88 +258,159 @@ const questionBank = [
       "Software Engineering and Big Data"
     ]
   },
+
   {
-    category: "Location", icon: "ðŸ ",
+    category: "Location",
+    icon: "🏠",
     question: "Where do I live?",
     instruction: "Enter the village name only.",
-    answers: ["Oodi"]
+    answers: [
+      "Oodi",
+	  "Gaborone",
+	  "Mahalapye",
+	  "Seruruma"
+    ]
   },
+
   {
-    category: "Location", icon: "ðŸ™ï¸",
+    category: "Location",
+    icon: "🏙️",
     question: "In which city do I work?",
     instruction: "Enter the city name only.",
-    answers: ["Gaborone"]
+    answers: [
+      "Gaborone"
+    ]
   },
+
   {
-    category: "Faith", icon: "â›ª",
+    category: "Faith",
+    icon: "⛪",
     question: "Which church do I attend?",
     instruction: "Enter the church and village.",
     answers: [
       "Assemblies of God Modipane",
       "Assemblies of God in Modipane",
       "Modipane Assemblies of God",
-      "Modipane AoG"
+      "Modipane AoG",
+	  "AoG Modipane",
+	  "Assemly of God",
+	  "Assembly of God Modipane",
+	  "Modipane Assembly of God"
     ]
   },
+
   {
-    category: "Faith", icon: "ðŸ™",
+    category: "Faith",
+    icon: "🙏",
     question: "Who is my pastor?",
     instruction: "Enter his title, first name and surname.",
-    answers: ["Rev Stephen Motlhagodi", "Reverend Stephen Motlhagodi", "Stephen Motlhagodi"]
+    answers: [
+      "Rev Stephen Motlhagodi",
+      "Reverend Stephen Motlhagodi",
+      "Stephen Motlhagodi",
+	  "Pastor Motlhagodi",
+	  "Pastor Stephen Motlhagodi",
+	  "Rev. Stephen Motlhagodi"
+    ]
   },
+
   {
-    category: "Lifestyle", icon: "ðŸ„",
+    category: "Lifestyle",
+    icon: "🐄",
     question: "What do I do besides my professional work?",
     instruction: "Enter the occupation or activity.",
-    answers: ["Farmer", "Farming"]
+    answers: [
+      "Farmer",
+      "Farming",
+	  "Cattle farming",
+	  "Cattle rearing"
+    ]
   },
+
   {
-    category: "Lifestyle", icon: "ðŸŒ¾",
+    category: "Lifestyle",
+    icon: "🌾",
     question: "Where is my cattle post?",
     instruction: "Enter the place name only.",
-    answers: ["Seruruma"]
+    answers: [
+      "Seruruma",
+	  "Mmaphashalala",
+	  "Mookane",
+	  "Seroroma"
+    ]
   },
+
   {
-    category: "Vehicles", icon: "ðŸ›»",
+    category: "Vehicles",
+    icon: "🛻",
     question: "Which Nissan vehicle do I drive?",
     instruction: "Enter the model and specification.",
-    answers: ["Nissan Navara 4x4 Pro", "Navara 4x4 Pro", "Nissan Navara"]
+    answers: [
+      "Nissan Navara 4x4 Pro",
+      "Navara 4x4 Pro",
+      "Nissan Navara",
+	  "Navara",
+	  "Pro 4x"
+    ]
   },
+
   {
-    category: "Vehicles", icon: "ðŸš˜",
+    category: "Vehicles",
+    icon: "🚘",
     question: "Which BMW model do I own?",
     instruction: "Enter the model, generation and version.",
     answers: [
       "BMW 320i E90 facelift",
       "BMW 320i E90",
       "320i E90 facelift",
-      "BMW E90 facelift"
+      "BMW E90 facelift",
+	  "BMW e90",
+	  "e90",
+	  "320",
+	  "320i"
     ]
   },
+
   {
-    category: "Vehicles", icon: "ðŸšš",
+    category: "Vehicles",
+    icon: "🚚",
     question: "Which GWM vehicle do I own?",
     instruction: "Enter the model and body type.",
     answers: [
       "GWM single cab Cargo",
       "GWM Cargo single cab",
       "GWM Cargo",
-      "GWM single cab"
+      "GWM single cab",
+	  "GWM rhino",
+	  "Rhino"
     ]
   },
+
   {
-    category: "Vehicles", icon: "ðŸ’š",
+    category: "Vehicles",
+    icon: "💚",
     question: "Which of my vehicles do I like most?",
     instruction: "Enter the vehicle name.",
-    answers: ["GWM Cargo", "GWM single cab Cargo", "GWM Cargo single cab"]
+    answers: [
+      "GWM Cargo",
+      "GWM single cab Cargo",
+      "GWM Cargo single cab",
+	  "GWM rhino",
+	  "Rhino"
+    ]
   },
+
   {
-    category: "Vehicles", icon: "ðŸ„",
+    category: "Vehicles",
+    icon: "🐄",
     question: "Why do I like the GWM Cargo most?",
     instruction: "State the main reason in a short phrase.",
-    keywords: ["cattle post"],
+    keywords: [
+      "cattle post", "cattlepost", "farm", "farming"
+    ],
     answerHint: "Because I mostly use it for the cattle post."
   }
+
 ];
 
 const state = {
