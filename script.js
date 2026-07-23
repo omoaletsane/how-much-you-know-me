@@ -1,4 +1,21 @@
-﻿// Updated quiz version - July 2026
+﻿/*
+  ================================================================
+  HOW MUCH YOU KNOW ME
+  Author: Oduetse Moaletsane
+  Corrected Version
+
+  Improvements
+  ----------------------------------------------------------------
+  ✓ Supports multiple accepted answers.
+  ✓ Supports legacy single answer questions.
+  ✓ Better normalization.
+  ✓ Better date comparison.
+  ✓ Better numeric comparison.
+  ✓ Better keyword comparison.
+  ✓ Improved sound handling.
+  ================================================================
+*/
+
 const QUESTION_COUNT = 20;
 
 const questionBank = [
@@ -149,7 +166,7 @@ const questionBank = [
       "24 August 1982",
       "24th August 1982",
 	  "24-08-1982",
-	  "24081982"
+	  "24081982",
 	  "240882",
 	  "24/08/1982",
 	  "24/08/82",
@@ -465,208 +482,682 @@ const els = {
   shareFeedback: document.getElementById("shareFeedback"),
   confetti: document.getElementById("confetti")
 };
+function showScreen(screenName) {
+  Object.values(screens).forEach(screen => {
+    if (screen) {
+      screen.classList.remove("active");
+      screen.setAttribute("aria-hidden", "true");
+    }
+  });
 
-function shuffle(array) {
-  const copy = [...array];
-  for (let i = copy.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [copy[i], copy[j]] = [copy[j], copy[i]];
+  const selectedScreen = screens[screenName];
+
+  if (selectedScreen) {
+    selectedScreen.classList.add("active");
+    selectedScreen.setAttribute("aria-hidden", "false");
   }
-  return copy;
+}
+
+function shuffle(items) {
+  const shuffledItems = [...items];
+
+  for (let index = shuffledItems.length - 1; index > 0; index--) {
+    const randomIndex = Math.floor(Math.random() * (index + 1));
+
+    [shuffledItems[index], shuffledItems[randomIndex]] = [
+      shuffledItems[randomIndex],
+      shuffledItems[index]
+    ];
+  }
+
+  return shuffledItems;
 }
 
 function normalize(value) {
-  return value
+  return String(value ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
     .trim()
     .toLowerCase()
-    .replace(/[.,'â€™"]/g, "")
+    .replace(/&/g, " and ")
+    .replace(/[.,'’"!?():;]/g, " ")
+    .replace(/[-_/\\]+/g, " ")
     .replace(/\s+/g, " ");
 }
 
 function normalizeDate(value) {
   return normalize(value)
-    .replace(/(\d+)(st|nd|rd|th)/g, "$1")
-    .replace(/\//g, " ")
-    .replace(/-/g, " ")
-    .replace(/\s+/g, " ");
+    .replace(/\b(\d{1,2})(st|nd|rd|th)\b/g, "$1");
+}
+
+function getAcceptedAnswers(question) {
+  if (Array.isArray(question.answers)) {
+    return question.answers;
+  }
+
+  if (question.answer !== undefined) {
+    return [question.answer];
+  }
+
+  return [];
 }
 
 function isCorrectAnswer(question, userValue) {
-  if (!userValue.trim()) return false;
+  const rawCandidate = String(userValue ?? "").trim();
 
-  if (question.keywords) {
-    const normalized = normalize(userValue);
-    return question.keywords.every(keyword => normalized.includes(normalize(keyword)));
+  if (!rawCandidate) {
+    return false;
   }
 
+  if (Array.isArray(question.keywords) && question.keywords.length > 0) {
+    const normalizedCandidate = normalize(rawCandidate);
+
+    return question.keywords.every(keyword =>
+      normalizedCandidate.includes(normalize(keyword))
+    );
+  }
+
+  const acceptedAnswers = getAcceptedAnswers(question);
+
   if (question.numeric) {
-    const digits = userValue.match(/\d+/);
-    return Boolean(digits && question.answers.includes(String(Number(digits[0]))));
+    const candidateMatch = rawCandidate.match(/-?\d+(?:\.\d+)?/);
+
+    if (!candidateMatch) {
+      return false;
+    }
+
+    const candidateNumber = Number(candidateMatch[0]);
+
+    return acceptedAnswers.some(answer => {
+      const expectedMatch = String(answer).match(/-?\d+(?:\.\d+)?/);
+
+      if (!expectedMatch) {
+        return false;
+      }
+
+      return Number(expectedMatch[0]) === candidateNumber;
+    });
   }
 
   if (question.date) {
-    const candidate = normalizeDate(userValue);
-    return question.answers.some(answer => normalizeDate(answer) === candidate);
+    const normalizedCandidate = normalizeDate(rawCandidate);
+
+    return acceptedAnswers.some(answer =>
+      normalizeDate(answer) === normalizedCandidate
+    );
   }
 
-  const candidate = normalize(userValue);
-  return question.answers.some(answer => normalize(answer) === candidate);
+  const normalizedCandidate = normalize(rawCandidate);
+
+  return acceptedAnswers.some(answer =>
+    normalize(answer) === normalizedCandidate
+  );
 }
 
-function switchScreen(target) {
-  Object.values(screens).forEach(screen => screen.classList.remove("active"));
-  screens[target].classList.add("active");
-  window.scrollTo({ top: 0, behavior: "smooth" });
+function getCorrectAnswerText(question) {
+  if (question.answerHint) {
+    return question.answerHint;
+  }
+
+  const acceptedAnswers = getAcceptedAnswers(question);
+
+  if (acceptedAnswers.length === 0) {
+    return "No answer has been provided.";
+  }
+
+  return acceptedAnswers.join(" OR ");
 }
 
-function startGame() {
-  state.playerName = els.playerName.value.trim() || "Player";
-  state.selectedQuestions = shuffle(questionBank).slice(0, QUESTION_COUNT);
+function updateSoundButton() {
+  if (!els.soundToggle) {
+    return;
+  }
+
+  els.soundToggle.textContent = state.soundOn ? "🔊" : "🔇";
+  els.soundToggle.setAttribute(
+    "aria-label",
+    state.soundOn ? "Turn sound off" : "Turn sound on"
+  );
+
+  els.soundToggle.setAttribute(
+    "title",
+    state.soundOn ? "Sound on" : "Sound off"
+  );
+}
+
+function playTone(type = "correct") {
+  if (!state.soundOn) {
+    return;
+  }
+
+  const AudioContextClass =
+    window.AudioContext ||
+    window.webkitAudioContext;
+
+  if (!AudioContextClass) {
+    return;
+  }
+
+  try {
+    const audioContext = new AudioContextClass();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    const currentTime = audioContext.currentTime;
+
+    if (type === "correct") {
+      oscillator.frequency.setValueAtTime(520, currentTime);
+      oscillator.frequency.exponentialRampToValueAtTime(
+        780,
+        currentTime + 0.18
+      );
+    } else if (type === "wrong") {
+      oscillator.frequency.setValueAtTime(260, currentTime);
+      oscillator.frequency.exponentialRampToValueAtTime(
+        150,
+        currentTime + 0.25
+      );
+    } else {
+      oscillator.frequency.setValueAtTime(440, currentTime);
+    }
+
+    gainNode.gain.setValueAtTime(0.12, currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(
+      0.001,
+      currentTime + 0.3
+    );
+
+    oscillator.start(currentTime);
+    oscillator.stop(currentTime + 0.3);
+
+    oscillator.addEventListener("ended", () => {
+      audioContext.close();
+    });
+  } catch (error) {
+    console.warn("Sound could not be played:", error);
+  }
+}
+
+function resetAnswerArea() {
+  state.answered = false;
+
+  if (els.answerInput) {
+    els.answerInput.value = "";
+    els.answerInput.disabled = false;
+    els.answerInput.classList.remove("correct", "incorrect");
+  }
+
+  if (els.answerWrap) {
+    els.answerWrap.classList.remove("correct", "incorrect");
+  }
+
+  if (els.answerStatusIcon) {
+    els.answerStatusIcon.textContent = "";
+    els.answerStatusIcon.classList.remove("show");
+  }
+
+  if (els.feedbackText) {
+    els.feedbackText.textContent = "";
+    els.feedbackText.className = "feedback-text";
+  }
+
+  if (els.submitAnswerBtn) {
+    els.submitAnswerBtn.hidden = false;
+    els.submitAnswerBtn.disabled = false;
+  }
+
+  if (els.nextQuestionBtn) {
+    els.nextQuestionBtn.hidden = true;
+  }
+}
+
+function updateProgress() {
+  const totalQuestions = state.selectedQuestions.length;
+  const questionNumber = state.currentIndex + 1;
+  const remainingQuestions = Math.max(
+    totalQuestions - questionNumber,
+    0
+  );
+
+  if (els.currentQuestionNumber) {
+    els.currentQuestionNumber.textContent =
+      `${questionNumber} of ${totalQuestions}`;
+  }
+
+  if (els.progressBar) {
+    const progressPercentage =
+      totalQuestions > 0
+        ? (questionNumber / totalQuestions) * 100
+        : 0;
+
+    els.progressBar.style.width = `${progressPercentage}%`;
+    els.progressBar.setAttribute(
+      "aria-valuenow",
+      String(Math.round(progressPercentage))
+    );
+  }
+
+  if (els.correctCount) {
+    els.correctCount.textContent = String(state.correct);
+  }
+
+  if (els.remainingCount) {
+    els.remainingCount.textContent = String(remainingQuestions);
+  }
+}
+
+function displayQuestion() {
+  const question = state.selectedQuestions[state.currentIndex];
+
+  if (!question) {
+    showResult();
+    return;
+  }
+
+  resetAnswerArea();
+  updateProgress();
+
+  if (els.questionCategory) {
+    els.questionCategory.textContent =
+      question.category || "Personal";
+  }
+
+  if (els.questionIcon) {
+    els.questionIcon.textContent = question.icon || "❓";
+  }
+
+  if (els.questionText) {
+    els.questionText.textContent = question.question;
+  }
+
+  if (els.questionInstruction) {
+    els.questionInstruction.textContent =
+      question.instruction || "Enter your answer.";
+  }
+
+  if (els.answerInput) {
+    if (question.numeric) {
+      els.answerInput.inputMode = "numeric";
+      els.answerInput.placeholder = "Enter a number";
+    } else {
+      els.answerInput.inputMode = "text";
+      els.answerInput.placeholder = "Type your answer";
+    }
+
+    window.setTimeout(() => {
+      els.answerInput.focus();
+    }, 150);
+  }
+}
+
+function startQuiz() {
+  const enteredName = els.playerName
+    ? els.playerName.value.trim()
+    : "";
+
+  state.playerName = enteredName || "Player";
+  state.selectedQuestions = shuffle(questionBank).slice(
+    0,
+    Math.min(QUESTION_COUNT, questionBank.length)
+  );
   state.currentIndex = 0;
   state.correct = 0;
   state.answered = false;
 
-  els.playerGreeting.textContent = `Good luck, ${state.playerName}!`;
-  els.restartTopBtn.classList.remove("hidden");
-  switchScreen("quiz");
-  renderQuestion();
-  playTone(520, 0.08);
+  if (els.playerGreeting) {
+    els.playerGreeting.textContent =
+      `Good luck, ${state.playerName}!`;
+  }
+
+  if (els.restartTopBtn) {
+    els.restartTopBtn.hidden = false;
+  }
+
+  showScreen("quiz");
+  displayQuestion();
 }
-
-function renderQuestion() {
-  const question = state.selectedQuestions[state.currentIndex];
-  state.answered = false;
-
-  els.currentQuestionNumber.textContent = state.currentIndex + 1;
-  els.correctCount.textContent = state.correct;
-  els.remainingCount.textContent = QUESTION_COUNT - state.currentIndex;
-  els.progressBar.style.width = `${((state.currentIndex + 1) / QUESTION_COUNT) * 100}%`;
-
-  els.questionCategory.textContent = question.category;
-  els.questionIcon.textContent = question.icon;
-  els.questionText.textContent = question.question;
-  els.questionInstruction.textContent = question.instruction;
-
-  els.answerInput.value = "";
-  els.answerInput.disabled = false;
-  els.answerWrap.classList.remove("correct", "wrong");
-  els.answerStatusIcon.textContent = "";
-  els.feedbackText.textContent = "";
-  els.feedbackText.className = "feedback-text";
-  els.submitAnswerBtn.classList.remove("hidden");
-  els.nextQuestionBtn.classList.add("hidden");
-  els.answerInput.focus();
-}
-
 function submitAnswer(event) {
   event.preventDefault();
-  if (state.answered) return;
 
-  const userAnswer = els.answerInput.value;
-  if (!userAnswer.trim()) {
-    els.feedbackText.textContent = "Please enter an answer before continuing.";
-    els.feedbackText.className = "feedback-text wrong";
+  if (state.answered) {
+    return;
+  }
+
+  const question = state.selectedQuestions[state.currentIndex];
+
+  if (!question || !els.answerInput) {
+    return;
+  }
+
+  const userAnswer = els.answerInput.value.trim();
+
+  if (!userAnswer) {
+    if (els.feedbackText) {
+      els.feedbackText.textContent =
+        "Please enter an answer before continuing.";
+      els.feedbackText.className = "feedback-text incorrect";
+    }
+
     els.answerInput.focus();
     return;
   }
 
   state.answered = true;
-  const question = state.selectedQuestions[state.currentIndex];
+
   const correct = isCorrectAnswer(question, userAnswer);
 
   els.answerInput.disabled = true;
-  els.submitAnswerBtn.classList.add("hidden");
-  els.nextQuestionBtn.classList.remove("hidden");
+
+  if (els.submitAnswerBtn) {
+    els.submitAnswerBtn.hidden = true;
+    els.submitAnswerBtn.disabled = true;
+  }
+
+  if (els.nextQuestionBtn) {
+    els.nextQuestionBtn.hidden = false;
+
+    const isLastQuestion =
+      state.currentIndex === state.selectedQuestions.length - 1;
+
+    els.nextQuestionBtn.textContent = isLastQuestion
+      ? "See My Result →"
+      : "Next Question →";
+  }
 
   if (correct) {
     state.correct += 1;
-    els.answerWrap.classList.add("correct");
-    els.answerStatusIcon.textContent = "âœ“";
-    els.feedbackText.textContent = "Correct! You know this one.";
-    els.feedbackText.className = "feedback-text correct";
-    playTone(760, 0.12);
+
+    if (els.answerInput) {
+      els.answerInput.classList.add("correct");
+    }
+
+    if (els.answerWrap) {
+      els.answerWrap.classList.add("correct");
+    }
+
+    if (els.answerStatusIcon) {
+      els.answerStatusIcon.textContent = "✓";
+      els.answerStatusIcon.classList.add("show");
+    }
+
+    if (els.feedbackText) {
+      els.feedbackText.textContent =
+        "Correct! You know this one.";
+      els.feedbackText.className = "feedback-text correct";
+    }
+
+    playTone("correct");
   } else {
-    els.answerWrap.classList.add("wrong");
-    els.answerStatusIcon.textContent = "âœ•";
-    const accepted = question.answerHint || question.answers[0];
-    els.feedbackText.textContent = `Not quite. Correct answer: ${accepted}`;
-    els.feedbackText.className = "feedback-text wrong";
-    playTone(230, 0.16);
+    const correctAnswer = getCorrectAnswerText(question);
+
+    if (els.answerInput) {
+      els.answerInput.classList.add("incorrect");
+    }
+
+    if (els.answerWrap) {
+      els.answerWrap.classList.add("incorrect");
+    }
+
+    if (els.answerStatusIcon) {
+      els.answerStatusIcon.textContent = "✕";
+      els.answerStatusIcon.classList.add("show");
+    }
+
+    if (els.feedbackText) {
+      els.feedbackText.textContent =
+        `Not quite. Accepted answer: ${correctAnswer}`;
+
+      els.feedbackText.className = "feedback-text incorrect";
+    }
+
+    playTone("wrong");
   }
 
-  els.correctCount.textContent = state.correct;
-  els.remainingCount.textContent = QUESTION_COUNT - (state.currentIndex + 1);
-  els.nextQuestionBtn.textContent =
-    state.currentIndex === QUESTION_COUNT - 1 ? "See My Result â†’" : "Next Question â†’";
+  if (els.correctCount) {
+    els.correctCount.textContent = String(state.correct);
+  }
+
+  if (els.remainingCount) {
+    const remainingQuestions = Math.max(
+      state.selectedQuestions.length -
+        (state.currentIndex + 1),
+      0
+    );
+
+    els.remainingCount.textContent =
+      String(remainingQuestions);
+  }
+
+  if (els.nextQuestionBtn) {
+    window.setTimeout(() => {
+      els.nextQuestionBtn.focus();
+    }, 150);
+  }
 }
 
 function nextQuestion() {
-  if (!state.answered) return;
-
-  if (state.currentIndex < QUESTION_COUNT - 1) {
-    state.currentIndex += 1;
-    renderQuestion();
-  } else {
-    showResult();
+  if (!state.answered) {
+    return;
   }
+
+  const isLastQuestion =
+    state.currentIndex >= state.selectedQuestions.length - 1;
+
+  if (isLastQuestion) {
+    showResult();
+    return;
+  }
+
+  state.currentIndex += 1;
+  displayQuestion();
 }
 
-function scoreRating(score) {
-  if (score === 100) return ["Outstanding! You know Oduetse perfectly.", "You are a true Oduetse expert!"];
-  if (score >= 80) return ["Excellent knowledge!", "You know him very well."];
-  if (score >= 60) return ["Good knowledge!", "You know quite a lot about him."];
-  if (score >= 40) return ["Fair knowledge.", "You know some important things about him."];
-  if (score >= 20) return ["You are still learning.", "There is much more to discover."];
-  return ["The journey has just begun!", "Time to learn more about him."];
+function getScoreRating(score) {
+  if (score === 100) {
+    return {
+      heading: "Outstanding!",
+      message: "You know Oduetse perfectly.",
+      cartoon: "You are a true Oduetse expert!"
+    };
+  }
+
+  if (score >= 80) {
+    return {
+      heading: "Excellent knowledge!",
+      message: "You know Oduetse very well.",
+      cartoon: "That was an impressive performance!"
+    };
+  }
+
+  if (score >= 60) {
+    return {
+      heading: "Good knowledge!",
+      message: "You know quite a lot about Oduetse.",
+      cartoon: "You clearly know him well!"
+    };
+  }
+
+  if (score >= 40) {
+    return {
+      heading: "Fair knowledge!",
+      message: "You know some important things about Oduetse.",
+      cartoon: "You are getting to know him!"
+    };
+  }
+
+  if (score >= 20) {
+    return {
+      heading: "You are still learning!",
+      message: "There is much more to discover about Oduetse.",
+      cartoon: "Keep learning more about him!"
+    };
+  }
+
+  return {
+    heading: "The journey has just begun!",
+    message: "It is time to learn more about Oduetse.",
+    cartoon: "You have many things left to discover!"
+  };
 }
 
-function scoreColor(score) {
-  if (score >= 80) return "#147a43";
-  if (score >= 60) return "#63ad67";
-  if (score >= 40) return "#d4a32d";
-  if (score >= 20) return "#e38342";
+function getScoreColor(score) {
+  if (score >= 80) {
+    return "#147a43";
+  }
+
+  if (score >= 60) {
+    return "#63ad67";
+  }
+
+  if (score >= 40) {
+    return "#d4a32d";
+  }
+
+  if (score >= 20) {
+    return "#e38342";
+  }
+
   return "#d94d4d";
 }
 
 function showResult() {
-  const score = Math.round((state.correct / QUESTION_COUNT) * 100);
-  const [heading, rating] = scoreRating(score);
-  const color = scoreColor(score);
+  const totalQuestions = state.selectedQuestions.length;
 
-  switchScreen("result");
-  els.restartTopBtn.classList.add("hidden");
-  els.resultHeading.textContent = heading;
-  els.resultSummary.textContent = `${state.playerName}, you answered ${state.correct} out of ${QUESTION_COUNT} questions correctly.`;
-  els.scorePercentage.textContent = `${score}%`;
-  els.scoreRing.style.background = `conic-gradient(${color} ${score * 3.6}deg, #ebe8f6 0deg)`;
+  const score =
+    totalQuestions > 0
+      ? Math.round((state.correct / totalQuestions) * 100)
+      : 0;
 
-  els.finalCorrect.textContent = state.correct;
-  els.finalWrong.textContent = QUESTION_COUNT - state.correct;
-  els.knowledgeMessage.textContent = `You know Oduetse ${score}%`;
-  els.ratingMessage.textContent = rating;
+  const wrongAnswers = totalQuestions - state.correct;
+  const rating = getScoreRating(score);
+  const scoreColor = getScoreColor(score);
 
-  setTimeout(() => {
-    els.meterFill.style.width = `${score}%`;
-    els.meterMarker.style.left = `${Math.max(1.5, Math.min(98.5, score))}%`;
-  }, 150);
+  showScreen("result");
 
-  els.cartoonMessage.classList.remove("pop");
-  setTimeout(() => els.cartoonMessage.classList.add("pop"), 450);
+  if (els.restartTopBtn) {
+    els.restartTopBtn.hidden = true;
+  }
 
-  if (score >= 60) createConfetti();
-  playTone(score >= 60 ? 660 : 360, 0.18);
+  if (els.resultHeading) {
+    els.resultHeading.textContent = rating.heading;
+  }
+
+  if (els.resultSummary) {
+    els.resultSummary.textContent =
+      `${state.playerName}, you answered ` +
+      `${state.correct} out of ${totalQuestions} ` +
+      `questions correctly.`;
+  }
+
+  if (els.scorePercentage) {
+    els.scorePercentage.textContent = `${score}%`;
+  }
+
+  if (els.scoreRing) {
+    els.scoreRing.style.background =
+      `conic-gradient(` +
+      `${scoreColor} ${score * 3.6}deg, ` +
+      `#ebe8f6 0deg)`;
+  }
+
+  if (els.finalCorrect) {
+    els.finalCorrect.textContent = String(state.correct);
+  }
+
+  if (els.finalWrong) {
+    els.finalWrong.textContent = String(wrongAnswers);
+  }
+
+  if (els.knowledgeMessage) {
+    els.knowledgeMessage.textContent =
+      `You know Oduetse ${score}%`;
+  }
+
+  if (els.ratingMessage) {
+    els.ratingMessage.textContent = rating.message;
+  }
+
+  if (els.cartoonMessage) {
+    els.cartoonMessage.textContent = rating.cartoon;
+    els.cartoonMessage.classList.remove("pop");
+
+    window.setTimeout(() => {
+      els.cartoonMessage.classList.add("pop");
+    }, 450);
+  }
+
+  if (els.meterFill) {
+    els.meterFill.style.width = "0%";
+
+    window.setTimeout(() => {
+      els.meterFill.style.width = `${score}%`;
+    }, 150);
+  }
+
+  if (els.meterMarker) {
+    els.meterMarker.style.left = "0%";
+
+    window.setTimeout(() => {
+      const markerPosition = Math.max(
+        1.5,
+        Math.min(98.5, score)
+      );
+
+      els.meterMarker.style.left =
+        `${markerPosition}%`;
+    }, 150);
+  }
+
+  if (els.shareFeedback) {
+    els.shareFeedback.textContent = "";
+  }
+
+  if (score >= 60) {
+    createConfetti();
+  }
+
+  playTone(score >= 60 ? "correct" : "wrong");
 }
 
 function restartGame() {
-  els.meterFill.style.width = "0";
-  els.meterMarker.style.left = "0";
-  els.shareFeedback.textContent = "";
-  startGame();
+  state.selectedQuestions = [];
+  state.currentIndex = 0;
+  state.correct = 0;
+  state.answered = false;
+
+  if (els.meterFill) {
+    els.meterFill.style.width = "0%";
+  }
+
+  if (els.meterMarker) {
+    els.meterMarker.style.left = "0%";
+  }
+
+  if (els.shareFeedback) {
+    els.shareFeedback.textContent = "";
+  }
+
+  if (els.confetti) {
+    els.confetti.innerHTML = "";
+  }
+
+  startQuiz();
 }
 
 async function shareResult() {
-  const score = Math.round((state.correct / QUESTION_COUNT) * 100);
-  const shareText = `${state.playerName} knows Oduetse ${score}%! Can you do better in â€œHow Much You Know Me?â€`;
+  const totalQuestions = state.selectedQuestions.length;
+
+  const score =
+    totalQuestions > 0
+      ? Math.round((state.correct / totalQuestions) * 100)
+      : 0;
+
+  const shareText =
+    `${state.playerName} knows Oduetse ${score}%! ` +
+    `Can you do better in “How Much You Know Me?”`;
 
   try {
     if (navigator.share) {
@@ -675,79 +1166,236 @@ async function shareResult() {
         text: shareText,
         url: window.location.href
       });
-    } else {
-      await navigator.clipboard.writeText(`${shareText} ${window.location.href}`);
-      els.shareFeedback.textContent = "Result copied to your clipboard.";
+
+      if (els.shareFeedback) {
+        els.shareFeedback.textContent =
+          "Thank you for sharing your result.";
+      }
+
+      return;
+    }
+
+    if (navigator.clipboard) {
+      await navigator.clipboard.writeText(
+        `${shareText} ${window.location.href}`
+      );
+
+      if (els.shareFeedback) {
+        els.shareFeedback.textContent =
+          "Your result has been copied to the clipboard.";
+      }
+
+      return;
+    }
+
+    if (els.shareFeedback) {
+      els.shareFeedback.textContent =
+        "Copy the page address to share your result.";
     }
   } catch (error) {
-    if (error.name !== "AbortError") {
-      els.shareFeedback.textContent = "Sharing was not available. You can copy the page link manually.";
+    if (error.name !== "AbortError" && els.shareFeedback) {
+      els.shareFeedback.textContent =
+        "Sharing was unavailable. Please copy the page link manually.";
     }
   }
 }
-
 function createConfetti() {
-  els.confetti.innerHTML = "";
-  const colors = ["#5536d8", "#ff9f43", "#1f9d67", "#e54d4d", "#efc94c"];
-
-  for (let i = 0; i < 46; i++) {
-    const piece = document.createElement("span");
-    piece.style.left = `${Math.random() * 100}%`;
-    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
-    piece.style.setProperty("--x", `${(Math.random() - 0.5) * 260}px`);
-    piece.style.animationDelay = `${Math.random() * 0.5}s`;
-    piece.style.animationDuration = `${2 + Math.random() * 1.4}s`;
-    els.confetti.appendChild(piece);
+  if (!els.confetti) {
+    return;
   }
 
-  setTimeout(() => { els.confetti.innerHTML = ""; }, 3800);
+  els.confetti.innerHTML = "";
+
+  const confettiSymbols = [
+    "🎉",
+    "✨",
+    "🎊",
+    "⭐",
+    "💫"
+  ];
+
+  const confettiCount = 45;
+
+  for (let index = 0; index < confettiCount; index++) {
+    const confettiPiece = document.createElement("span");
+
+    confettiPiece.className = "confetti-piece";
+
+    confettiPiece.textContent =
+      confettiSymbols[
+        Math.floor(Math.random() * confettiSymbols.length)
+      ];
+
+    confettiPiece.style.left =
+      `${Math.random() * 100}%`;
+
+    confettiPiece.style.animationDelay =
+      `${Math.random() * 1.8}s`;
+
+    confettiPiece.style.animationDuration =
+      `${2.5 + Math.random() * 2.5}s`;
+
+    confettiPiece.style.fontSize =
+      `${12 + Math.random() * 18}px`;
+
+    els.confetti.appendChild(confettiPiece);
+  }
+
+  window.setTimeout(() => {
+    if (els.confetti) {
+      els.confetti.innerHTML = "";
+    }
+  }, 6000);
 }
 
-function playTone(frequency, duration) {
-  if (!state.soundOn || !window.AudioContext) return;
-  const context = new AudioContext();
-  const oscillator = context.createOscillator();
-  const gain = context.createGain();
-
-  oscillator.type = "sine";
-  oscillator.frequency.value = frequency;
-  gain.gain.setValueAtTime(0.06, context.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.001, context.currentTime + duration);
-
-  oscillator.connect(gain);
-  gain.connect(context.destination);
-  oscillator.start();
-  oscillator.stop(context.currentTime + duration);
+function handlePlayerNameEnter(event) {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    startQuiz();
+  }
 }
 
-els.startBtn.addEventListener("click", startGame);
-els.answerForm.addEventListener("submit", submitAnswer);
-els.nextQuestionBtn.addEventListener("click", nextQuestion);
-els.playAgainBtn.addEventListener("click", restartGame);
-els.restartTopBtn.addEventListener("click", restartGame);
-els.shareBtn.addEventListener("click", shareResult);
-
-els.soundToggle.addEventListener("click", () => {
+function toggleSound() {
   state.soundOn = !state.soundOn;
-  els.soundToggle.firstElementChild.textContent = state.soundOn ? "ðŸ”Š" : "ðŸ”‡";
-  els.soundToggle.setAttribute("aria-label", state.soundOn ? "Mute sound" : "Enable sound");
+  updateSoundButton();
+
+  if (state.soundOn) {
+    playTone("correct");
+  }
+}
+
+if (els.startBtn) {
+  els.startBtn.addEventListener("click", startQuiz);
+}
+
+if (els.playerName) {
+  els.playerName.addEventListener(
+    "keydown",
+    handlePlayerNameEnter
+  );
+}
+
+if (els.answerForm) {
+  els.answerForm.addEventListener(
+    "submit",
+    submitAnswer
+  );
+}
+
+if (els.nextQuestionBtn) {
+  els.nextQuestionBtn.addEventListener(
+    "click",
+    nextQuestion
+  );
+}
+
+if (els.playAgainBtn) {
+  els.playAgainBtn.addEventListener(
+    "click",
+    restartGame
+  );
+}
+
+if (els.restartTopBtn) {
+  els.restartTopBtn.addEventListener(
+    "click",
+    restartGame
+  );
+}
+
+if (els.shareBtn) {
+  els.shareBtn.addEventListener(
+    "click",
+    shareResult
+  );
+}
+
+if (els.soundToggle) {
+  els.soundToggle.addEventListener(
+    "click",
+    toggleSound
+  );
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  showScreen("welcome");
+  updateSoundButton();
+
+  if (els.restartTopBtn) {
+    els.restartTopBtn.hidden = true;
+  }
+
+  if (els.playerName) {
+    els.playerName.focus();
+  }
 });
 
-els.playerName.addEventListener("keydown", event => {
-  if (event.key === "Enter") startGame();
-});
+/*
+  ================================================================
+  PRIVACY NOTICE
+  ================================================================
+*/
 
-document.getElementById("year").textContent = new Date().getFullYear();
+const privacyToggle =
+  document.getElementById("privacyToggle");
 
+const privacyContent =
+  document.getElementById("privacyContent");
 
-// Collapsible Privacy Notice
-const privacyToggle = document.getElementById("privacyToggle");
-const privacyContent = document.getElementById("privacyContent");
+const privacyArrow =
+  document.getElementById("privacyArrow");
 
 if (privacyToggle && privacyContent) {
   privacyToggle.addEventListener("click", () => {
-    const isOpen = privacyContent.classList.toggle("open");
-    privacyToggle.setAttribute("aria-expanded", String(isOpen));
+    const isExpanded =
+      privacyToggle.getAttribute("aria-expanded") === "true";
+
+    privacyToggle.setAttribute(
+      "aria-expanded",
+      String(!isExpanded)
+    );
+
+    privacyContent.classList.toggle(
+      "open",
+      !isExpanded
+    );
+
+    privacyContent.setAttribute(
+      "aria-hidden",
+      String(isExpanded)
+    );
+
+    if (privacyArrow) {
+      privacyArrow.classList.toggle(
+        "rotated",
+        !isExpanded
+      );
+    }
   });
 }
 
+/*
+  ================================================================
+  OPTIONAL KEYBOARD SUPPORT
+  ================================================================
+*/
+
+document.addEventListener("keydown", event => {
+  const quizIsActive =
+    screens.quiz &&
+    screens.quiz.classList.contains("active");
+
+  if (!quizIsActive) {
+    return;
+  }
+
+  if (
+    event.key === "Enter" &&
+    state.answered &&
+    els.nextQuestionBtn &&
+    !els.nextQuestionBtn.hidden
+  ) {
+    event.preventDefault();
+    nextQuestion();
+  }
+});
