@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="How Much You Know Me — an interactive quiz about Oduetse Moaletsane." />
+  <title>How Much You Know Me?</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>❓</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="background-shapes" aria-hidden="true">
+    <span class="shape shape-one"></span>
+    <span class="shape shape-two"></span>
+    <span class="shape shape-three"></span>
+  </div>
+
+  <main class="app-shell">
+    <header class="topbar">
+      <a href="#" class="brand" aria-label="How Much You Know Me home">
+        <span class="brand-badge">?</span>
+        <span>
+          <strong>How Much You Know Me</strong>
+          <small>Oduetse Edition</small>
+        </span>
+      </a>
+
+      <div class="topbar-actions">
+        <button id="soundToggle" class="icon-button" type="button" aria-label="Toggle sound" title="Toggle sound">
+          <span aria-hidden="true">🔊</span>
+        </button>
+        <button id="restartTopBtn" class="ghost-button hidden" type="button">Restart</button>
+      </div>
+    </header>
+
+    <section id="welcomeScreen" class="screen active">
+      <div class="hero-card">
+        <div class="hero-copy">
+          <span class="eyebrow">THE ODUETSE CHALLENGE</span>
+          <h1>How much do you really know about <span>Oduetse?</span></h1>
+          <p>
+            You will receive 20 randomly selected questions. Read every instruction carefully,
+            spell your answers correctly, and discover your final knowledge score.
+          </p>
+
+          <div class="game-features" aria-label="Game features">
+            <article>
+              <span>🎲</span>
+              <div><strong>20 random questions</strong><small>Different mix each game</small></div>
+            </article>
+            <article>
+              <span>✍️</span>
+              <div><strong>Spelling matters</strong><small>Capital letters do not matter</small></div>
+            </article>
+            <article>
+              <span>📊</span>
+              <div><strong>Instant rating</strong><small>Score, bar and personal message</small></div>
+            </article>
+          </div>
+
+          <label class="player-name-field" for="playerName">
+            <span>Your name or nickname</span>
+            <input id="playerName" type="text" maxlength="30" placeholder="Enter your name" autocomplete="name" />
+          </label>
+
+          <button id="startBtn" class="primary-button" type="button">
+            Start the Challenge <span aria-hidden="true">→</span>
+          </button>
+
+          <div class="privacy-box">
+            <button
+              class="privacy-toggle"
+              id="privacyToggle"
+              type="button"
+              aria-expanded="false"
+              aria-controls="privacyContent"
+            >
+              <span class="privacy-title">🔒 Privacy Notice</span>
+              <span class="privacy-arrow" aria-hidden="true">▼</span>
+            </button>
+
+            <div class="privacy-content" id="privacyContent">
+              <div class="privacy-content-inner">
+                <p>
+                  This game contains personal information that has been intentionally and voluntarily
+                  provided by Oduetse solely for the purpose of creating this quiz. The content does not
+                  include any sensitive personal information, confidential information, financial
+                  information, or any other data intended to compromise privacy or security.
+                </p>
+
+                <p>
+                  This project has been developed for educational and practice purposes only as part of
+                  learning and demonstrating HTML, CSS, and JavaScript. The information included is used
+                  exclusively within the context of this quiz and is not intended for any commercial,
+                  malicious, or data collection purposes.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <div class="profile-orbit">
+            <span class="orbit-item orbit-one" aria-hidden="true">🚙</span>
+            <span class="orbit-item orbit-two" aria-hidden="true">⛪</span>
+            <span class="orbit-item orbit-three" aria-hidden="true">🐄</span>
+            <span class="orbit-item orbit-four" aria-hidden="true">📊</span>
+
+            <div class="photo-card">
+              <div class="photo-ring">
+                <img
+                  src="assets/oduetse.png"
+                  alt="Portrait of Oduetse"
+                  class="profile-photo"
+                >
+              </div>
+              <div class="photo-caption">
+                <strong>Oduetse</strong>
+                <span>Do you know me?</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="quizScreen" class="screen">
+      <div class="quiz-layout">
+        <aside class="quiz-sidebar">
+          <div class="mini-profile">
+            <div class="mini-avatar">
+              <img src="assets/oduetse.png" alt="">
+            </div>
+            <div>
+              <strong>Oduetse Challenge</strong>
+              <small id="playerGreeting">Good luck!</small>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-row">
+              <span>Question</span>
+              <strong><span id="currentQuestionNumber">1</span>/20</strong>
+            </div>
+            <div class="progress-track" aria-label="Quiz progress">
+              <div id="progressBar" class="progress-fill"></div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-row">
+              <span>Correct</span>
+              <strong id="correctCount">0</strong>
+            </div>
+            <div class="stat-row">
+              <span>Remaining</span>
+              <strong id="remainingCount">20</strong>
+            </div>
+          </div>
+
+          <div class="tip-card">
+            <span>💡</span>
+            <p>Capital letters are ignored, but spelling and the requested format still matter.</p>
+          </div>
+        </aside>
+
+        <div class="question-card">
+          <div class="question-meta">
+            <span id="questionCategory" class="category-pill">Personal</span>
+            <span id="questionPoints">1 point</span>
+          </div>
+
+          <div class="question-content">
+            <span id="questionIcon" class="question-icon" aria-hidden="true">👤</span>
+            <h2 id="questionText">Question appears here</h2>
+            <p id="questionInstruction" class="instruction">Instruction appears here.</p>
+          </div>
+
+          <form id="answerForm" novalidate>
+            <label class="answer-label" for="answerInput">Your answer</label>
+            <div class="answer-wrap">
+              <input id="answerInput" type="text" placeholder="Type your answer here..." autocomplete="off" spellcheck="false" />
+              <span id="answerStatusIcon" class="answer-status-icon" aria-hidden="true"></span>
+            </div>
+            <p id="feedbackText" class="feedback-text" role="status" aria-live="polite"></p>
+
+            <div class="question-actions">
+              <button id="submitAnswerBtn" class="primary-button" type="submit">
+                Check Answer
+              </button>
+              <button id="nextQuestionBtn" class="secondary-button hidden" type="button">
+                Next Question <span aria-hidden="true">→</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section id="resultScreen" class="screen">
+      <div class="result-card">
+        <div id="confetti" class="confetti" aria-hidden="true"></div>
+
+        <span class="eyebrow">CHALLENGE COMPLETE</span>
+        <h1 id="resultHeading">Your score is ready!</h1>
+        <p id="resultSummary">Here is how much you know Oduetse.</p>
+
+        <div class="score-ring" role="img" aria-label="Final score">
+          <div class="score-ring-inner">
+            <strong id="scorePercentage">0%</strong>
+            <span>Knowledge Score</span>
+          </div>
+        </div>
+
+        <div class="knowledge-meter">
+          <div class="meter-labels">
+            <span>Still learning</span>
+            <span>Excellent</span>
+          </div>
+          <div class="meter-track">
+            <div id="meterFill" class="meter-fill"></div>
+            <div id="meterMarker" class="meter-marker" title="Your score"></div>
+          </div>
+          <div class="meter-scale">
+            <span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span>
+          </div>
+        </div>
+
+        <div id="cartoonMessage" class="cartoon-message">
+          <div class="cartoon-face" aria-hidden="true">
+            <span class="cartoon-eye left"></span>
+            <span class="cartoon-eye right"></span>
+            <span class="cartoon-mouth"></span>
+          </div>
+          <div class="message-bubble">
+            <strong id="knowledgeMessage">You know Oduetse 0%</strong>
+            <span id="ratingMessage">Time to learn more about him!</span>
+          </div>
+        </div>
+
+        <div class="result-stat-grid">
+          <article><span>✅</span><strong id="finalCorrect">0</strong><small>Correct answers</small></article>
+          <article><span>❌</span><strong id="finalWrong">0</strong><small>Incorrect answers</small></article>
+          <article><span>🎯</span><strong>20</strong><small>Questions answered</small></article>
+        </div>
+
+        <div class="result-actions">
+          <button id="playAgainBtn" class="primary-button" type="button">Play Again</button>
+          <button id="shareBtn" class="secondary-button" type="button">Share Result</button>
+        </div>
+
+        <p id="shareFeedback" class="share-feedback" role="status" aria-live="polite"></p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Made with curiosity for Oduetse Moaletsane • <span id="year"></span>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
